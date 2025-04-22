@@ -39,7 +39,7 @@ model = build_model(input_shape=(X_train.shape[1], 1))
 # Add EarlyStopping
 early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-history = model.fit(X_train, y_train, epochs=50, validation_data=(X_test, y_test), batch_size=32, callbacks=[early_stopping])
+history = model.fit(X_train, y_train, epochs=20, validation_data=(X_test, y_test), batch_size=32, callbacks=[early_stopping])
 
 # Save model and preprocessing tools
 model.save("models/heart_disease_model.h5")

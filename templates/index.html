@@ -3,28 +3,636 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <title>Heart Disease Prediction</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1a1a4f, #0a0e23);
+            position: relative;
+        }
+        
+        /* Simple Hovering Heart */
+        .heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        
+        .heart {
+            width: 60vw;
+            height: 60vw;
+            max-width: 700px;
+            max-height: 700px;
+            background: rgba(255, 8, 68, 0.05);
+            border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+            transform: rotate(45deg);
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 8, 68, 0.2);
+            animation: heart-beat 2s ease-in-out infinite, heart-hover 6s ease-in-out infinite;
+        }
+        
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 8, 68, 0.05);
+            box-shadow: 0 0 40px rgba(255, 8, 68, 0.2);
+        }
+        
+        .heart::before {
+            left: -50%;
+            top: 0;
+        }
+        
+        .heart::after {
+            top: -50%;
+            left: 0;
+        }
+        
+        @keyframes heart-beat {
+            0%, 100% { transform: rotate(45deg) scale(1); }
+            30% { transform: rotate(45deg) scale(1.1); }
+            60% { transform: rotate(45deg) scale(1); }
+            90% { transform: rotate(45deg) scale(1.05); }
+        }
+        
+        @keyframes heart-hover {
+            0%, 100% { transform: rotate(45deg) translate(0, 0); }
+            25% { transform: rotate(45deg) translate(-10px, -10px); }
+            50% { transform: rotate(45deg) translate(0, -20px); }
+            75% { transform: rotate(45deg) translate(10px, -10px); }
+        }
+        
+        /* Card Design */
+        .card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(26, 26, 79, 0.6);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            min-width: 1000px;
+            padding: 2rem !important;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Heading & Text Elements */
+        h2 {
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ff0844, #ffb199);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .title-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Form Elements */
+        .form-control {
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 25px rgba(255, 8, 68, 0.4);
+            border-color: rgba(255, 8, 68, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #ff0844, #ff3366);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 50px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 20px rgba(255, 8, 68, 0.3);
+            position: relative;
+            overflow: hidden;
+            font-size: 1.1rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 8, 68, 0.4);
+        }
+        
+        /* Heart Icon Animation */
+        .heartbeat-icon {
+            display: inline-block;
+            color: #ff0844;
+            margin: 0 5px;
+            animation: iconPulse 1.2s ease-in-out infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes iconPulse {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.3); }
+            60% { transform: scale(1); }
+        }
+        
+        /* Results Display */
+        #result {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            transition: all 0.5s ease;
+            transform: translateY(20px);
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        #result.active {
+            transform: translateY(0);
+            opacity: 1;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #result .stat-card:first-child {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-value {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-value:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .stat-title {
+            color: #ff0844;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(255, 8, 68, 0.3);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-title i {
+            margin-right: 10px;
+        }
+
+        .title-icon {
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+
+        .risk-high {
+            color: #ff3366;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .risk-low {
+            color: #00ff95;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff0844;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .analysis-category {
+            margin-bottom: 15px;
+        }
+
+        .stat-subtitle {
+            color: #ff6b8b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .insight-list, .recommendation-list, .warning-list, .positive-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .insight-list li, .recommendation-list li, .warning-list li, .positive-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .insight-list li:before, .recommendation-list li:before, .warning-list li:before, .positive-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+
+        .warning-card {
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .positive-card {
+            border: 1px solid rgba(0, 255, 149, 0.3);
+        }
+
+        #result {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        #result::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #result::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        #result::-webkit-scrollbar-thumb {
+            background: rgba(255, 8, 68, 0.5);
+            border-radius: 4px;
+        }
+
+        #result::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 8, 68, 0.7);
+        }
+
+        /* Update the container width */
+        @media (min-width: 992px) {
+            .col-lg-6 {
+                flex: 0 0 auto;
+                width: 1200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple Hovering Heart Background -->
+    <div class="heart-bg">
+        <div class="heart"></div>
+    </div>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card p-4 animate_animated animate_fadeInUp">
+                    <div class="card-body">
+                        <div class="title-container">
+                            <h2>
+                                <i class="fas fa-heartbeat heartbeat-icon"></i> Heart Disease Prediction
+                            </h2>
+                        </div>
+                        
+                        <form id="prediction-form" class="text-center mb-4">
+                            <div class="mb-4">
+                                <label for="patient_id" class="form-label fw-bold text-white mb-2">
+                                    <i class="fas fa-user-md me-2"></i>Enter Patient ID:
+                                </label>
+                                <input type="text" id="patient_id" class="form-control w-75 mx-auto" 
+                                       placeholder="e.g., 12345" autocomplete="off">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-stethoscope me-2"></i>Get Advice
+                            </button>
+                        </form>
+                        
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p class="mt-2">Analyzing patient data...</p>
+                        </div>
+                        
+                        <div id="result" class="mt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {            
+            // Form submission
+            document.getElementById('prediction-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                getAdvice();
+            });
+            
+            // Enhance heart animation when the page loads
+            setTimeout(() => {
+                document.querySelector('.heart').style.opacity = 1;
+            }, 300);
+        });
+        
         function getAdvice() {
             let patientId = document.getElementById("patient_id").value;
+            
+            if (!patientId) {
+                showResult("Please enter a patient ID", "error");
+                return;
+            }
+            
+            // Show loading animation
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("result").classList.remove("active");
+            
+            // Speed up the heartbeat during "analysis"
+            document.querySelector('.heart').style.animationDuration = "0.8s, 6s";
+            
             fetch("/predict", {
                 method: "POST",
-                body: new URLSearchParams({ "patient_id": patientId }),
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ patient_id: patientId })
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById("result").innerText = data.advice || data.error;
+                document.getElementById("loading").style.display = "none";
+                
+                if (data.error) {
+                    showResult(data.error, "error");
+                } else {
+                    displayResults(data);
+                }
+                
+                // Return heartbeat to normal
+                document.querySelector('.heart').style.animationDuration = "2s, 6s";
+            })
+            .catch(error => {
+                document.getElementById("loading").style.display = "none";
+                showResult("Connection error. Please try again.", "error");
+                
+                // Return heartbeat to normal
+                document.querySelector('.heart').style.animationDuration = "2s, 6s";
             });
         }
+        
+        function displayResults(data) {
+            const resultElement = document.getElementById("result");
+            const riskLevel = data.risk_assessment.risk_level;
+            const riskScore = (data.risk_assessment.risk_score * 100).toFixed(1);
+            
+            let html = `
+                <div class="stat-card">
+                    <div class="stat-title">
+                        <i class="fas fa-exclamation-triangle title-icon"></i>Risk Assessment
+                    </div>
+                    <div class="stat-value ${riskLevel === 'High Risk' ? 'risk-high' : 'risk-low'}">
+                        <span>${riskLevel}</span>
+                        <span>(${riskScore}%)</span>
+                    </div>
+                    <div class="stat-value" style="font-style: italic; color: #ccc;">
+                        ${data.risk_assessment.interpretation}
+                    </div>
+                </div>
+            `;
+
+            // Add Vital Statistics in a grid
+            Object.entries(data.vital_statistics).forEach(([category, stats]) => {
+                let icon = '';
+                switch(category) {
+                    case 'Cardiovascular Metrics':
+                        icon = 'fa-heart-pulse';
+                        break;
+                    case 'Respiratory Status':
+                        icon = 'fa-lungs';
+                        break;
+                    case 'General Vitals':
+                        icon = 'fa-temperature-high';
+                        break;
+                }
+
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas ${icon} title-icon"></i>${category}
+                        </div>
+                        <div class="metrics-grid">
+                            ${renderNestedStats(stats)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add Measurement Validations
+            if (data.measurement_validations) {
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-check-circle title-icon"></i>Measurement Validations
+                        </div>
+                        <div class="metrics-grid">
+                            ${Object.entries(data.measurement_validations).map(([metric, validation]) => `
+                                <div>
+                                    <div class="stat-value">
+                                        <span>${metric}:</span>
+                                        <span class="${validation.is_valid ? 'risk-low' : 'risk-high'}">
+                                            ${validation.is_valid ? 'Normal' : 'Abnormal'}
+                                        </span>
+                                    </div>
+                                    <div class="stat-value" style="font-size: 0.9rem; color: #ccc;">
+                                        ${validation.normal_range}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Add Detailed Analysis sections
+            if (data.detailed_analysis) {
+                // Risk Factors
+                if (data.detailed_analysis.risk_factors && data.detailed_analysis.risk_factors.length > 0) {
+                    html += `
+                        <div class="stat-card warning-card">
+                            <div class="stat-title">
+                                <i class="fas fa-triangle-exclamation title-icon"></i>Risk Factors
+                            </div>
+                            <ul class="warning-list">
+                                ${data.detailed_analysis.risk_factors.map(factor => `
+                                    <li class="stat-value">${factor}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                // Recommendations
+                if (data.detailed_analysis.lifestyle_recommendations) {
+                    html += `
+                        <div class="stat-card">
+                            <div class="stat-title">
+                                <i class="fas fa-list-check title-icon"></i>Recommendations
+                            </div>
+                            <ul class="recommendation-list">
+                                ${data.detailed_analysis.lifestyle_recommendations.map(rec => `
+                                    <li class="stat-value">${rec}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+
+            resultElement.innerHTML = html;
+            resultElement.classList.add("active");
+            
+            // Add animation classes
+            resultElement.classList.add("animate__animated", "animate__fadeInUp");
+            setTimeout(() => {
+                resultElement.classList.remove("animate__fadeInUp");
+            }, 1000);
+        }
+        
+        function renderNestedStats(stats) {
+            if (typeof stats !== 'object') {
+                return `<div class="stat-value">${stats}</div>`;
+            }
+            
+            return Object.entries(stats).map(([key, value]) => {
+                if (typeof value === 'object') {
+                    return `
+                        <div class="analysis-category mb-2">
+                            <div class="stat-subtitle">${key}</div>
+                            ${renderNestedStats(value)}
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="stat-value">
+                        <span>${key}:</span>
+                        <span>${typeof value === 'number' ? value.toFixed(2) : value}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function showResult(message, type) {
+            const resultElement = document.getElementById("result");
+            resultElement.innerHTML = `<div class="stat-card ${type === 'error' ? 'risk-high' : ''}">${message}</div>`;
+            resultElement.classList.add("active");
+            
+            // Add animation
+            resultElement.classList.add("animate__animated", "animate__fadeInUp");
+            setTimeout(() => {
+                resultElement.classList.remove("animate__fadeInUp");
+            }, 1000);
+        }
     </script>
-</head>
-<body>
-    <h2>Heart Disease Prediction</h2>
-    <label for="patient_id">Enter Patient ID:</label>
-    <input type="text" id="patient_id">
-    <button onclick="getAdvice()">Get Advice</button>
-    <p id="result"></p>
 </body>
 </html>

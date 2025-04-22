@@ -29,7 +29,9 @@ def extract_mfcc(audio_file):
     return np.mean(mfccs, axis=1)
 
 if __name__ == "__main__":
-    test_audio = "data/records/85340_TV.wav"  # Example audio file
+    test_audio = "data/records/49876_TV.wav"  # Example audio file
     visualize_waveform(test_audio)
     mfcc_features = extract_mfcc(test_audio)
     print(f"Extracted MFCC Features: {mfcc_features}")
+
+

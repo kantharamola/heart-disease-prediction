@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import joblib
 import os
-from sklearn.metrics import accuracy_score, roc_curve
+from sklearn.metrics import roc_curve, accuracy_score
 
 # Load the trained model and scaler
 def load_model():
@@ -21,10 +21,10 @@ def load_model():
 
 # Determine optimal decision threshold using ROC curve
 def find_optimal_threshold(model, scaler):
-    df = pd.read_csv("data/processed_features.csv")
+    df = pd.read_csv("D:\heart_diseasee\heart_disease\data\processed_features.csv")
 
-    if 'ID' in df.columns:
-        df = df.drop(columns=['ID'])
+    if 'patient_id' in df.columns:
+        df = df.drop(columns=['patient_id'])
 
     X_test = df.iloc[:, :-1].values
     y_test = df.iloc[:, -1].values
@@ -68,10 +68,10 @@ def predict(features, threshold):
 def evaluate_model(threshold):
     model, scaler = load_model()
     
-    df = pd.read_csv("data/processed_features.csv")
+    df = pd.read_csv("D:\heart_diseasee\heart_disease\data\processed_features.csv")
 
-    if 'ID' in df.columns:
-        df = df.drop(columns=['ID'])
+    if 'patient_id' in df.columns:
+        df = df.drop(columns=['patient_id'])
 
     X_test = df.iloc[:, :-1].values
     y_test = df.iloc[:, -1].values
@@ -93,16 +93,31 @@ def evaluate_model(threshold):
 # Example Usage
 if __name__ == "__main__":
     model, scaler = load_model()
-
     threshold = find_optimal_threshold(model, scaler)
 
-    df = pd.read_csv("data/processed_features.csv")
+    df = pd.read_csv("D:\heart_diseasee\heart_disease\data\processed_features.csv")
 
-    if 'ID' in df.columns:
-        df = df.drop(columns=['ID'])
 
-    sample = df.iloc[0, :-1].values
+    feature_columns = df.columns[1:-1]  # Adjust based on your dataset
+
+# Load CSV properly
+    df = pd.read_csv("D:\heart_diseasee\heart_disease\data\processed_features.csv", dtype={'patient_id': str})
+
+# Ensure ID consistency
+    df['patient_id'] = df['patient_id'].astype(str).str.strip()
+    patient_id = str(49876)
+    sample = df.loc[df['patient_id'] == patient_id, feature_columns].values
+
+# Debugging output
+    print(f"Looking for Patient ID: {repr(patient_id)}")
+    print(df['patient_id'].apply(repr).unique()[:10])  # Print first 10 IDs in exact format
+
+# Check if patient exists
+    if patient_id not in df['patient_id'].values:
+        raise ValueError(f"Patient ID {patient_id} not found. Check data type and formatting.")
+
     result = predict(sample, threshold)
     print("Prediction:", "No Heart Disease Detected" if result else "Heart Disease Detected")
+
 
     evaluate_model(threshold)

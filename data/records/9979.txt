@@ -21,6 +21,6 @@ MV 9979_MV.hea 9979_MV.wav 9979_MV.tsv
 #Diastolic murmur grading: nan
 #Diastolic murmur pitch: nan
 #Diastolic murmur quality: nan
-#Outcome: Abnormal
+#Outcome: Normal
 #Campaign: CC2015
 #Additional ID: nan

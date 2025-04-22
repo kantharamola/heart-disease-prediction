@@ -21,6 +21,6 @@ MV 2530_MV.hea 2530_MV.wav 2530_MV.tsv
 #Diastolic murmur grading: nan
 #Diastolic murmur pitch: nan
 #Diastolic murmur quality: nan
-#Outcome: Abnormal
+#Outcome: Normal
 #Campaign: CC2015
 #Additional ID: nan

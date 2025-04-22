@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.env.local
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Model files (will be handled by Git LFS)
+*.h5
+*.pkl
+*.joblib
+*.model
+
+# Data files (will be handled by Git LFS)
+data/raw/
+data/processed/
+*.csv
+*.wav
+*.mp3
+*.npy
+*.npz 
