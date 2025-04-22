@@ -51,110 +51,139 @@
             gap: 0.5rem;
         }
 
-        .app-description {
-            color: var(--text-secondary);
-            max-width: 800px;
+        .input-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .input-container {
+            max-width: 400px;
             margin: 0 auto;
-            line-height: 1.6;
         }
 
-        .features-grid {
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 22, 84, 0.2);
+            color: var(--text-primary);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn-predict {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-predict:hover {
+            background: #ff2e6a;
+            transform: translateY(-2px);
+        }
+
+        .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
-            margin: 3rem 0;
+            margin-top: 2rem;
         }
 
-        .feature-card {
+        .metric-card {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 1.5rem;
             border: 1px solid var(--card-border);
-            transition: transform 0.3s ease;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
+        .metric-card h3 {
             color: var(--accent-color);
-            font-size: 2rem;
+            font-size: 1.2rem;
             margin-bottom: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .feature-title {
-            color: var(--text-primary);
-            font-size: 1.2rem;
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
             margin-bottom: 0.5rem;
         }
 
-        .feature-description {
+        .metric-label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
         }
 
-        .demo-section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid var(--card-border);
+        .metric-value {
+            color: var(--text-primary);
+            font-weight: 500;
         }
 
-        .demo-title {
-            color: var(--accent-color);
+        .risk-level {
             font-size: 1.5rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .demo-description {
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .github-link {
-            display: inline-block;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
         }
 
-        .github-link:hover {
-            background: #ff2e6a;
-            transform: translateY(-2px);
-            color: white;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 4rem;
-            padding: 2rem 0;
+        .risk-score {
+            font-size: 1.2rem;
             color: var(--text-secondary);
+        }
+
+        .murmur-section h4 {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 1.5rem 0 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
             .app-title {
                 font-size: 2rem;
             }
 
-            .features-grid {
+            .results-grid {
                 grid-template-columns: 1fr;
             }
 
-            .feature-card {
+            .metric-card {
                 padding: 1rem;
             }
 
-            body {
-                padding: 1rem;
+            .risk-level {
+                font-size: 1.2rem;
+            }
+
+            .risk-score {
+                font-size: 1rem;
             }
         }
     </style>
@@ -166,77 +195,167 @@
                 <i class="fas fa-heartbeat"></i>
                 Heart Disease Prediction
             </h1>
-            <p class="app-description">
-                A sophisticated web application that leverages machine learning and AI to predict heart disease risk. 
-                The system analyzes patient data, including heart murmur assessments, to provide detailed medical insights 
-                and personalized recommendations.
-            </p>
         </header>
 
-        <section class="features-grid">
-            <div class="feature-card">
-                <i class="fas fa-brain feature-icon"></i>
-                <h3 class="feature-title">Advanced Risk Prediction</h3>
-                <p class="feature-description">
-                    Machine learning-based heart disease risk assessment with real-time analysis of cardiovascular metrics.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <i class="fas fa-robot feature-icon"></i>
-                <h3 class="feature-title">AI-Powered Analysis</h3>
-                <p class="feature-description">
-                    Integration with Groq AI for detailed medical insights and personalized health recommendations.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <i class="fas fa-desktop feature-icon"></i>
-                <h3 class="feature-title">Professional Interface</h3>
-                <p class="feature-description">
-                    Modern, responsive web design with real-time data visualization and interactive patient data input.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <i class="fas fa-shield-alt feature-icon"></i>
-                <h3 class="feature-title">Robust Security</h3>
-                <p class="feature-description">
-                    Rate limiting, secure headers, input validation, and comprehensive error handling.
-                </p>
+        <section class="input-section">
+            <div class="input-container">
+                <div class="mb-3">
+                    <label for="patientId" class="form-label">Enter Patient ID:</label>
+                    <input type="text" class="form-control" id="patientId" placeholder="Enter Patient ID">
+                </div>
+                <button class="btn btn-predict" onclick="predict()">Get Advice</button>
             </div>
         </section>
 
-        <section class="demo-section">
-            <h2 class="demo-title">Try the Application</h2>
-            <p class="demo-description">
-                Experience our heart disease prediction system with advanced murmur assessment capabilities.
-            </p>
-            <div class="text-center">
-                <a href="https://heart-disease-prediction.onrender.com" class="github-link">
-                    <i class="fas fa-external-link-alt"></i>
-                    Launch Application
-                </a>
-            </div>
-        </section>
-
-        <section class="demo-section">
-            <h2 class="demo-title">Open Source Project</h2>
-            <p class="demo-description">
-                This project is open source and available on GitHub. Feel free to contribute or use it in your own projects.
-            </p>
-            <div class="text-center">
-                <a href="https://github.com/kantharamola/heart-disease-prediction" class="github-link">
-                    <i class="fab fa-github"></i>
-                    View on GitHub
-                </a>
-            </div>
-        </section>
-
-        <footer class="footer">
-            <p>© 2024 Heart Disease Prediction. MIT License.</p>
-            <p>Created by Kantha Ramola</p>
-        </footer>
+        <div id="result" class="results-grid" style="display: none;"></div>
     </div>
+
+    <script>
+        function predict() {
+            const patientId = document.getElementById('patientId').value;
+            if (!patientId) {
+                alert('Please enter a patient ID');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'grid';
+            resultDiv.innerHTML = '<div class="metric-card text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+
+            fetch('https://heart-disease-prediction-api.onrender.com/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ patient_id: patientId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultDiv.innerHTML = '<div class="metric-card text-center text-danger">Error: Could not get prediction results</div>';
+            });
+        }
+
+        function displayResults(data) {
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = `
+                <div class="metric-card">
+                    <h3>Risk Assessment</h3>
+                    <div class="risk-level">${data.risk_assessment.risk_level}</div>
+                    <div class="risk-score">(${(data.risk_assessment.risk_score * 100).toFixed(1)}%)</div>
+                    <p class="mt-3">${data.risk_assessment.interpretation}</p>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Cardiovascular Metrics</h3>
+                    <div class="murmur-section">
+                        <h4>Murmur Assessment</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">Presence:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Presence ? 'Present' : 'Absent'}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Location:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Location}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Most Audible:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Most_Audible_Location}</span>
+                        </div>
+                    </div>
+
+                    <div class="murmur-section">
+                        <h4>Diastolic Details</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">Grade:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Diastolic_Details.Grade}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Pitch:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Diastolic_Details.Pitch}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Quality:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Diastolic_Details.Quality}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Shape:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Diastolic_Details.Shape}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Timing:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Diastolic_Details.Timing}</span>
+                        </div>
+                    </div>
+
+                    <div class="murmur-section">
+                        <h4>Systolic Details</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">Grade:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Systolic_Details.Grade}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Pitch:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Systolic_Details.Pitch}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Quality:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Systolic_Details.Quality}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Shape:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Systolic_Details.Shape}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Timing:</span>
+                            <span class="metric-value">${data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment.Systolic_Details.Timing}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Patient Demographics</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Age:</span>
+                        <span class="metric-value">${data.vital_statistics.Patient_Demographics.Age}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Height:</span>
+                        <span class="metric-value">${data.vital_statistics.Patient_Demographics.Height} cm</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Weight:</span>
+                        <span class="metric-value">${data.vital_statistics.Patient_Demographics.Weight} kg</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sex:</span>
+                        <span class="metric-value">${data.vital_statistics.Patient_Demographics.Sex}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Pregnancy Status:</span>
+                        <span class="metric-value">${data.vital_statistics.Patient_Demographics.Pregnancy_Status}</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Risk Factors</h3>
+                    <div class="metric-row">
+                        ${data.detailed_analysis.risk_factors.map(factor => `<div class="metric-value">${factor}</div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Recommendations</h3>
+                    <div class="metric-row">
+                        ${data.detailed_analysis.lifestyle_recommendations.map(rec => `<div class="metric-value">${rec}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html> 
