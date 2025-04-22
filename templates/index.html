@@ -489,7 +489,7 @@
             let html = `
                 <div class="stat-card">
                     <div class="stat-title">
-                        <i class="fas fa-exclamation-triangle title-icon"></i>Risk Assessment
+                        <i class="fas fa-triangle-exclamation title-icon"></i>RISK ASSESSMENT
                     </div>
                     <div class="stat-value ${riskLevel === 'High Risk' ? 'risk-high' : 'risk-low'}">
                         <span>${riskLevel}</span>
@@ -499,95 +499,50 @@
                         ${data.risk_assessment.interpretation}
                     </div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-title">
+                        <i class="fas fa-heart-pulse title-icon"></i>CARDIOVASCULAR METRICS
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="analysis-category mb-2">
+                            <div class="stat-subtitle">Murmur Assessment</div>
+                            ${renderMurmurDetails(data.vital_statistics.Cardiovascular_Metrics.Murmur_Assessment)}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-title">
+                        <i class="fas fa-user title-icon"></i>PATIENT DEMOGRAPHICS
+                    </div>
+                    <div class="metrics-grid">
+                        ${renderDemographics(data.vital_statistics.Patient_Demographics)}
+                    </div>
+                </div>
+
+                <div class="stat-card warning-card">
+                    <div class="stat-title">
+                        <i class="fas fa-triangle-exclamation title-icon"></i>RISK FACTORS
+                    </div>
+                    <ul class="warning-list">
+                        ${data.detailed_analysis.risk_factors.map(factor => `
+                            <li class="stat-value">${factor}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-title">
+                        <i class="fas fa-list-check title-icon"></i>RECOMMENDATIONS
+                    </div>
+                    <ul class="recommendation-list">
+                        ${data.detailed_analysis.lifestyle_recommendations.map(rec => `
+                            <li class="stat-value">${rec}</li>
+                        `).join('')}
+                    </ul>
+                </div>
             `;
-
-            // Add Vital Statistics in a grid
-            Object.entries(data.vital_statistics).forEach(([category, stats]) => {
-                let icon = '';
-                switch(category) {
-                    case 'Cardiovascular Metrics':
-                        icon = 'fa-heart-pulse';
-                        break;
-                    case 'Respiratory Status':
-                        icon = 'fa-lungs';
-                        break;
-                    case 'General Vitals':
-                        icon = 'fa-temperature-high';
-                        break;
-                }
-
-                html += `
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas ${icon} title-icon"></i>${category}
-                        </div>
-                        <div class="metrics-grid">
-                            ${renderNestedStats(stats)}
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Add Measurement Validations
-            if (data.measurement_validations) {
-                html += `
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-check-circle title-icon"></i>Measurement Validations
-                        </div>
-                        <div class="metrics-grid">
-                            ${Object.entries(data.measurement_validations).map(([metric, validation]) => `
-                                <div>
-                                    <div class="stat-value">
-                                        <span>${metric}:</span>
-                                        <span class="${validation.is_valid ? 'risk-low' : 'risk-high'}">
-                                            ${validation.is_valid ? 'Normal' : 'Abnormal'}
-                                        </span>
-                                    </div>
-                                    <div class="stat-value" style="font-size: 0.9rem; color: #ccc;">
-                                        ${validation.normal_range}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Add Detailed Analysis sections
-            if (data.detailed_analysis) {
-                // Risk Factors
-                if (data.detailed_analysis.risk_factors && data.detailed_analysis.risk_factors.length > 0) {
-                    html += `
-                        <div class="stat-card warning-card">
-                            <div class="stat-title">
-                                <i class="fas fa-triangle-exclamation title-icon"></i>Risk Factors
-                            </div>
-                            <ul class="warning-list">
-                                ${data.detailed_analysis.risk_factors.map(factor => `
-                                    <li class="stat-value">${factor}</li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    `;
-                }
-
-                // Recommendations
-                if (data.detailed_analysis.lifestyle_recommendations) {
-                    html += `
-                        <div class="stat-card">
-                            <div class="stat-title">
-                                <i class="fas fa-list-check title-icon"></i>Recommendations
-                            </div>
-                            <ul class="recommendation-list">
-                                ${data.detailed_analysis.lifestyle_recommendations.map(rec => `
-                                    <li class="stat-value">${rec}</li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    `;
-                }
-            }
 
             resultElement.innerHTML = html;
             resultElement.classList.add("active");
@@ -599,27 +554,81 @@
             }, 1000);
         }
         
-        function renderNestedStats(stats) {
-            if (typeof stats !== 'object') {
-                return `<div class="stat-value">${stats}</div>`;
-            }
-            
-            return Object.entries(stats).map(([key, value]) => {
-                if (typeof value === 'object') {
-                    return `
-                        <div class="analysis-category mb-2">
-                            <div class="stat-subtitle">${key}</div>
-                            ${renderNestedStats(value)}
-                        </div>
-                    `;
-                }
-                return `
-                    <div class="stat-value">
-                        <span>${key}:</span>
-                        <span>${typeof value === 'number' ? value.toFixed(2) : value}</span>
-                    </div>
-                `;
-            }).join('');
+        function renderMurmurDetails(murmur) {
+            return `
+                <div class="stat-value">
+                    <span>Presence:</span>
+                    <span>${murmur.Presence ? 'Present' : 'Absent'}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Location:</span>
+                    <span>${murmur.Location}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Most Audible Location:</span>
+                    <span>${murmur.Most_Audible_Location}</span>
+                </div>
+                
+                <div class="analysis-category mb-2">
+                    <div class="stat-subtitle">Systolic Details</div>
+                    ${renderMurmurSection(murmur.Systolic_Details)}
+                </div>
+                
+                <div class="analysis-category mb-2">
+                    <div class="stat-subtitle">Diastolic Details</div>
+                    ${renderMurmurSection(murmur.Diastolic_Details)}
+                </div>
+            `;
+        }
+
+        function renderMurmurSection(details) {
+            return `
+                <div class="stat-value">
+                    <span>Grade:</span>
+                    <span>${details.Grade}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Pitch:</span>
+                    <span>${details.Pitch}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Quality:</span>
+                    <span>${details.Quality}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Shape:</span>
+                    <span>${details.Shape}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Timing:</span>
+                    <span>${details.Timing}</span>
+                </div>
+            `;
+        }
+
+        function renderDemographics(demographics) {
+            return `
+                <div class="stat-value">
+                    <span>Age:</span>
+                    <span>${demographics.Age}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Height:</span>
+                    <span>${demographics.Height}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Pregnancy Status:</span>
+                    <span>${demographics.Pregnancy_Status}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Sex:</span>
+                    <span>${demographics.Sex}</span>
+                </div>
+                <div class="stat-value">
+                    <span>Weight:</span>
+                    <span>${demographics.Weight}</span>
+                </div>
+            `;
         }
         
         function showResult(message, type) {

@@ -54,6 +54,7 @@ try:
     DATA_DF.columns = DATA_DF.columns.str.strip()
     DATA_DF['patient_id'] = DATA_DF['patient_id'].astype(str)
     logger.info(f"Data loaded successfully at startup. Shape: {DATA_DF.shape}")
+    logger.info(f"Columns in processed_features.csv: {DATA_DF.columns.tolist()}")
 except Exception as e:
     logger.error(f"Error loading processed features data: {str(e)}")
     raise
@@ -134,7 +135,7 @@ def analyze_medical_data(vital_stats, risk_score):
             client = Groq(api_key=api_key)
 
             # Get patient age and risk level
-            age = vital_stats['Patient Demographics']['Age']
+            age = vital_stats['Patient_Demographics']['Age']
             risk_level = "High Risk" if risk_score > 0.5 else "Low Risk"
 
             # Prepare the prompt with patient details and vital statistics
@@ -142,30 +143,30 @@ def analyze_medical_data(vital_stats, risk_score):
 
 Patient Details:
 - Age: {age}
-- Sex: {vital_stats['Patient Demographics']['Sex']}
-- Height: {vital_stats['Patient Demographics']['Height']} cm
-- Weight: {vital_stats['Patient Demographics']['Weight']} kg
-- Pregnancy Status: {vital_stats['Patient Demographics']['Pregnancy Status']}
+- Sex: {vital_stats['Patient_Demographics']['Sex']}
+- Height: {vital_stats['Patient_Demographics']['Height']} cm
+- Weight: {vital_stats['Patient_Demographics']['Weight']} kg
+- Pregnancy Status: {vital_stats['Patient_Demographics']['Pregnancy_Status']}
 - Risk Score: {risk_score:.2f} ({risk_level})
 
 Murmur Assessment:
-- Presence: {'Present' if vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Presence'] else 'Absent'}
-- Location: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Location']}
-- Most Audible Location: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Most Audible Location']}
+- Presence: {'Present' if vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Presence'] else 'Absent'}
+- Location: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Location']}
+- Most Audible Location: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Most_Audible_Location']}
 
 Systolic Murmur Details:
-- Timing: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Systolic Details']['Timing']}
-- Shape: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Systolic Details']['Shape']}
-- Grade: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Systolic Details']['Grade']}
-- Pitch: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Systolic Details']['Pitch']}
-- Quality: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Systolic Details']['Quality']}
+- Timing: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Systolic_Details']['Timing']}
+- Shape: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Systolic_Details']['Shape']}
+- Grade: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Systolic_Details']['Grade']}
+- Pitch: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Systolic_Details']['Pitch']}
+- Quality: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Systolic_Details']['Quality']}
 
 Diastolic Murmur Details:
-- Timing: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Diastolic Details']['Timing']}
-- Shape: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Diastolic Details']['Shape']}
-- Grade: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Diastolic Details']['Grade']}
-- Pitch: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Diastolic Details']['Pitch']}
-- Quality: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']['Diastolic Details']['Quality']}
+- Timing: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Diastolic_Details']['Timing']}
+- Shape: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Diastolic_Details']['Shape']}
+- Grade: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Diastolic_Details']['Grade']}
+- Pitch: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Diastolic_Details']['Pitch']}
+- Quality: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']['Diastolic_Details']['Quality']}
 
 Please provide a comprehensive analysis including:
 1. Age-specific risk factors and considerations
@@ -228,8 +229,8 @@ Format the response as a structured JSON with these sections:
 
 def get_default_analysis(vital_stats, risk_score):
     """Provide a default analysis when the AI service is unavailable"""
-    demographics = vital_stats["Patient Demographics"]
-    murmur = vital_stats["Cardiovascular Metrics"]["Murmur Assessment"]
+    demographics = vital_stats["Patient_Demographics"]
+    murmur = vital_stats["Cardiovascular_Metrics"]["Murmur_Assessment"]
     age = demographics['Age']
     
     risk_factors = []
@@ -252,7 +253,7 @@ def get_default_analysis(vital_stats, risk_score):
     # Murmur analysis
     if murmur["Presence"]:
         risk_factors.append(f"Heart murmur detected at {murmur['Location']}")
-        if murmur['Systolic Details']['Grade'] in ['III/VI', 'IV/VI', 'V/VI', 'VI/VI']:
+        if murmur['Systolic_Details']['Grade'] in ['III/VI', 'IV/VI', 'V/VI', 'VI/VI']:
             warnings.append("Significant heart murmur detected - requires immediate evaluation")
     
     # BMI calculation and analysis
@@ -368,6 +369,18 @@ def get_default_analysis(vital_stats, risk_score):
 try:
     model = tf.keras.models.load_model("models/heart_disease_model.h5")
     scaler = joblib.load("models/scaler.pkl")
+    
+    # Verify scaler dimensions
+    logger.info(f"Loaded scaler with {scaler.n_features_in_} input features")
+    if scaler.n_features_in_ != 36:
+        logger.warning(f"Warning: Scaler expects {scaler.n_features_in_} features, model may need to be retrained")
+    
+    # Verify model input shape
+    input_shape = model.input_shape
+    logger.info(f"Model input shape: {input_shape}")
+    if input_shape[2] != 1:
+        logger.warning(f"Warning: Model expects input shape with 1 channel, but got {input_shape[2]}")
+    
     logger.info("Model and scaler loaded successfully")
 except Exception as e:
     logger.error(f"Error loading model or scaler: {str(e)}")
@@ -376,15 +389,16 @@ except Exception as e:
 @app.route('/predict', methods=['GET', 'POST'])
 @limiter.limit("30 per minute")
 def predict():
-    if request.method == 'POST':
+    if request.method == 'GET':
+        patient_id = request.args.get('patient_id')
+    else:
+        # Handle JSON data for POST requests
         if request.is_json:
             data = request.get_json()
             patient_id = data.get('patient_id')
         else:
             patient_id = request.form.get('patient_id')
-    else:
-        patient_id = request.args.get('patient_id')
-        
+    
     logger.info(f"Received prediction request for patient ID: {patient_id}")
 
     # Validate Input
@@ -398,8 +412,8 @@ def predict():
 
     try:
         # First, get patient demographics from training_data.csv
-        training_data = pd.read_csv("data/training_data.csv", encoding='utf-8', sep='\t')  # Specify tab separator
-        training_data.columns = training_data.columns.str.strip()
+        training_data = pd.read_csv("data/training_data.csv", encoding='utf-8')
+        training_data.columns = [col.strip() for col in training_data.columns]
         
         # Print column names for debugging
         logger.info(f"Training data columns: {training_data.columns.tolist()}")
@@ -454,20 +468,20 @@ def predict():
             logger.warning(f"Patient ID {patient_id} not found in processed features dataset")
             return jsonify({"error": f"Patient features not found for ID {patient_id}"}), 404
 
-        # Extract Features (Ensure 32 features)
-        X = patient_data.iloc[:, 1:33].values  # Ensuring 32 features only
+        # Extract Features (Ensure 36 features)
+        X = patient_data.iloc[:, 1:37].values  # Changed from 1:33 to 1:37 to get 36 features
         logger.info(f"Features extracted for patient ID {patient_id}. Shape: {X.shape}")
 
         # Validate feature count
-        if X.shape[1] != 32:
+        if X.shape[1] != 36:  # Changed from 32 to 36
             logger.error(f"Invalid feature count: {X.shape[1]} for patient ID {patient_id}")
-            return jsonify({"error": f"Data format error: Expected 32 features, but got {X.shape[1]}"}), 400
+            return jsonify({"error": f"Data format error: Expected 36 features, but got {X.shape[1]}"}), 400
 
         # Normalize Features for prediction
         X_scaled = scaler.transform(X)
         
         # Reshape Correctly
-        X_reshaped = X_scaled.reshape(-1, 32, 1)
+        X_reshaped = X_scaled.reshape(-1, 36, 1)  # Changed from 32 to 36
         
         # Make Prediction
         prediction = model.predict(X_reshaped)[0][0]
@@ -478,25 +492,31 @@ def predict():
 
         # Process vital statistics with proper normalization
         vital_stats = {
-            "Patient Demographics": demographics,
-            "Cardiovascular Metrics": {
-                "Murmur Assessment": {
-                    "Presence": bool(X[0][7]),  # feat_7 indicates murmur presence
-                    "Location": "Multiple" if X[0][8] > 0.5 else "Single",  # feat_8 indicates location complexity
-                    "Most Audible Location": "Aortic" if X[0][9] > 0.5 else "Mitral",  # feat_9 indicates primary location
-                    "Systolic Details": {
-                        "Timing": "Early" if X[0][10] > 0.5 else "Late",  # feat_10 indicates timing
-                        "Shape": "Crescendo" if X[0][11] > 0.5 else "Decrescendo",  # feat_11 indicates shape
-                        "Grade": f"{int(X[0][12] * 6)}/VI",  # feat_12 scaled to grade I-VI
-                        "Pitch": "High" if X[0][13] > 0.5 else "Low",  # feat_13 indicates pitch
-                        "Quality": "Harsh" if X[0][14] > 0.5 else "Blowing"  # feat_14 indicates quality
+            "Patient_Demographics": {
+                "Age": str(patient_demographics['Age']),
+                "Sex": str(patient_demographics['Sex']),
+                "Height": float(patient_demographics['Height']) if pd.notna(patient_demographics['Height']) else 0.0,
+                "Weight": float(patient_demographics['Weight']) if pd.notna(patient_demographics['Weight']) else 0.0,
+                "Pregnancy_Status": str(patient_demographics['Pregnancy status'])
+            },
+            "Cardiovascular_Metrics": {
+                "Murmur_Assessment": {
+                    "Presence": str(patient_demographics['Murmur']).lower() == 'present',
+                    "Location": str(patient_demographics['Murmur locations']).strip() if pd.notna(patient_demographics['Murmur locations']) else 'Single',
+                    "Most_Audible_Location": str(patient_demographics['Most audible location']).strip() if pd.notna(patient_demographics['Most audible location']) else 'Aortic',
+                    "Diastolic_Details": {
+                        "Grade": str(patient_demographics['Diastolic murmur grading']).strip() if pd.notna(patient_demographics['Diastolic murmur grading']) else '4/VI',
+                        "Pitch": str(patient_demographics['Diastolic murmur pitch']).strip() if pd.notna(patient_demographics['Diastolic murmur pitch']) else 'High',
+                        "Quality": str(patient_demographics['Diastolic murmur quality']).strip() if pd.notna(patient_demographics['Diastolic murmur quality']) else 'Harsh',
+                        "Shape": str(patient_demographics['Diastolic murmur shape']).strip() if pd.notna(patient_demographics['Diastolic murmur shape']) else 'Crescendo',
+                        "Timing": str(patient_demographics['Diastolic murmur timing']).strip() if pd.notna(patient_demographics['Diastolic murmur timing']) else 'Early'
                     },
-                    "Diastolic Details": {
-                        "Timing": "Early" if X[0][15] > 0.5 else "Late",  # feat_15 indicates timing
-                        "Shape": "Crescendo" if X[0][16] > 0.5 else "Decrescendo",  # feat_16 indicates shape
-                        "Grade": f"{int(X[0][17] * 6)}/VI",  # feat_17 scaled to grade I-VI
-                        "Pitch": "High" if X[0][18] > 0.5 else "Low",  # feat_18 indicates pitch
-                        "Quality": "Harsh" if X[0][19] > 0.5 else "Blowing"  # feat_19 indicates quality
+                    "Systolic_Details": {
+                        "Grade": str(patient_demographics['Systolic murmur grading']).strip() if pd.notna(patient_demographics['Systolic murmur grading']) else '16/VI',
+                        "Pitch": str(patient_demographics['Systolic murmur pitch']).strip() if pd.notna(patient_demographics['Systolic murmur pitch']) else 'High',
+                        "Quality": str(patient_demographics['Systolic murmur quality']).strip() if pd.notna(patient_demographics['Systolic murmur quality']) else 'Harsh',
+                        "Shape": str(patient_demographics['Systolic murmur shape']).strip() if pd.notna(patient_demographics['Systolic murmur shape']) else 'Crescendo',
+                        "Timing": str(patient_demographics['Systolic murmur timing']).strip() if pd.notna(patient_demographics['Systolic murmur timing']) else 'Early'
                     }
                 }
             }
@@ -504,8 +524,7 @@ def predict():
         
         # Log the murmur details for debugging
         logger.info(f"Murmur details for patient {patient_id}:")
-        logger.info(f"Raw features: {X[0][7:20]}")  # Log the relevant features
-        logger.info(f"Processed details: {vital_stats['Cardiovascular Metrics']['Murmur Assessment']}")
+        logger.info(f"Raw murmur data: {vital_stats['Cardiovascular_Metrics']['Murmur_Assessment']}")
 
         # Get detailed analysis from Groq
         detailed_analysis = analyze_medical_data(vital_stats, prediction)
