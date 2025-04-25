@@ -6,6 +6,7 @@ import tensorflow as tf
 from flask import Flask, request, jsonify, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 import joblib
 from groq import Groq
 import json
@@ -23,12 +24,24 @@ logger = logging.getLogger(__name__)
 # Environment configuration
 ENV = os.getenv('FLASK_ENV', 'development')
 DEBUG = ENV == 'development'
-HOST = '127.0.0.1' if ENV == 'development' else '0.0.0.0'
-PORT = int(os.getenv('PORT', 5001))
+HOST = '0.0.0.0'  # Changed to 0.0.0.0 for production
+PORT = int(os.getenv('PORT', 10000))  # Changed default port to 10000 for Render
 
 # Initialize Flask app with additional security headers
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
+
+# Enable CORS
+CORS(app, resources={
+    r"/predict": {
+        "origins": [
+            "http://localhost:10000",
+            "https://heart-disease-prediction.onrender.com"
+        ],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Initialize rate limiter
 limiter = Limiter(
@@ -46,6 +59,13 @@ def add_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; font-src 'self' cdnjs.cloudflare.com"
+    
+    # Add CORS headers
+    if request.method == 'OPTIONS':
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Max-Age'] = '3600'
     return response
 
 # Load data at startup
@@ -61,11 +81,15 @@ except Exception as e:
 
 # Initialize Groq client
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-if GROQ_API_KEY:
-    groq_client = Groq(api_key=GROQ_API_KEY)
-    logger.info("Groq client initialized successfully")
-else:
-    logger.warning("GROQ_API_KEY not found in environment variables")
+try:
+    if GROQ_API_KEY:
+        groq_client = Groq(api_key=GROQ_API_KEY)
+        logger.info("Groq client initialized successfully")
+    else:
+        logger.warning("GROQ_API_KEY not found in environment variables")
+        groq_client = None
+except Exception as e:
+    logger.error(f"Error initializing Groq client: {str(e)}")
     groq_client = None
 
 # Add these constants at the top of the file
